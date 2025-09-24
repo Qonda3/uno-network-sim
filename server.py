@@ -1,5 +1,6 @@
 
 import socket
+import sys
 
 HOST = '127.0.0.1'
 PORT = 12345
@@ -15,9 +16,12 @@ def start_server():
         client.sendall(b"Hello, Client!")
         client.close()
 if __name__ == "__main__":
+    if len(sys.argv) < 4:
+        print("Usage: python server.py HOST PORT NUM_PLAYERS")
+        print("Example: python server.py 0.0.0.0 9999 2")
+        sys.exit(1)
+    host = sys.argv[1]
+    port = int(sys.argv[2])
+    num_players = int(sys.argv[3])
     start_server()
-# Simple TCP server that listens for connections and sends a greeting message.
-# It binds to localhost on port 12345 and can handle up to 4 simultaneous connections.
-# It uses the socket library to create a TCP socket, bind it to the specified address,
-# and listen for incoming connections. When a client connects, it sends a greeting message
-# and then closes the connection.
+
