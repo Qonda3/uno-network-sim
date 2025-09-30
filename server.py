@@ -22,7 +22,7 @@ if __name__ == "__main__":
     host = sys.argv[1]
     port = int(sys.argv[2])
     num_players = int(sys.argv[3])
-    start_server()
+    start_server(host, port, num_players)
 
 ## Example usage:
 # python server.py 0.0.0.0 9999 2

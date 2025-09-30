@@ -17,7 +17,14 @@ if __name__ == "__main__":
     message = client_socket.recv(1024)
     data = message.decode('utf-8').strip()
 
+    if data == "Hello, Client!":
+        client_socket.sendall(name.encode('utf-8'))
+    else:
+        print("Unexpected message from server")
+
     print(f"Received from server: {data}")
+
+    
     client_socket.close()
 
 ## Example usage:
