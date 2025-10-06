@@ -13,7 +13,13 @@ def start_server(host, port, num_players):
         client, addr = srv.accept()
         print(f"Connection from {addr}")
         client.sendall(b"Hello, Client!")
-        client.close()
+        name = client.recv(1024).decode("utf-8").strip()
+
+        if name is None:
+            print("No name received from client")
+            client.close()
+            continue
+        print(f"Received name from client: {name}")
 if __name__ == "__main__":
     if len(sys.argv) < 4:
         print("Usage: python server.py HOST PORT NUM_PLAYERS")

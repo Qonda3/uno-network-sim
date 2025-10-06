@@ -24,9 +24,14 @@ if __name__ == "__main__":
 
     print(f"Received from server: {data}")
 
-    
-    client_socket.close()
-
-## Example usage:
-# python client.py 127.0.0.1 9999 Player1
+    while True:
+        try:
+            cmd = input("Enter command (or 'exit' to quit): ")
+        except EOFError:
+            break
+        if cmd.lower() == 'exit':
+            print("Exiting...")
+            client_socket.close()
+            sys.exit(0)
+            
 
