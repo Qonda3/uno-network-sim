@@ -1,6 +1,26 @@
 
 import socket
 import sys
+import threading
+
+def handle_client(client_socket, addr):
+    print(f"Connection from {addr} has been established!")
+    client_socket.sendall(b"Hello, Client!")
+    name = client_socket.recv(1024).decode('utf-8').strip()
+    print(f"Client {addr} identified as {name}")
+    try:
+        while True:
+            message = client_socket.recv(1024)
+            if not message:
+                break
+            print(f"Received from {name}: {message.decode('utf-8').strip()}")
+            client_socket.sendall(b"Message received")
+    except ConnectionResetError:
+        print(f"Connection with {name} lost.")
+    finally:
+        client_socket.close()
+        print(f"Connection with {name} closed.")
+        
 
 
 def start_server(host, port, num_players):
@@ -11,15 +31,8 @@ def start_server(host, port, num_players):
     print(f"Server started at {host}:{port}")
     while True:
         client, addr = srv.accept()
-        print(f"Connection from {addr}")
-        client.sendall(b"Hello, Client!")
-        name = client.recv(1024).decode("utf-8").strip()
+        threading.Thread(target=handle_client, args=(client, addr), daemon=True).start()
 
-        if name is None:
-            print("No name received from client")
-            client.close()
-            continue
-        print(f"Received name from client: {name}")
 if __name__ == "__main__":
     if len(sys.argv) < 4:
         print("Usage: python server.py HOST PORT NUM_PLAYERS")
