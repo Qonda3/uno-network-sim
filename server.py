@@ -3,7 +3,10 @@ import socket
 import sys
 import threading
 
+clients = []
+
 def handle_client(client_socket, addr):
+    global clients
     print(f"Connection from {addr} has been established!")
     client_socket.sendall(b"Hello, Client!")
     name = client_socket.recv(1024).decode('utf-8').strip()
@@ -12,6 +15,9 @@ def handle_client(client_socket, addr):
         client_socket.close()
         return
     print(f"Client {addr} identified as {name}")
+    clients.append((client_socket, name))
+    broadcast_msg(f"{name} has joined the game.", client_socket)
+    
     try:
         while True:
             message = client_socket.recv(1024)
@@ -25,7 +31,14 @@ def handle_client(client_socket, addr):
         client_socket.close()
         print(f"Connection with {name} closed.")
 
-
+def broadcast_msg(message, sender_socket):
+    global clients
+    for client, name in clients:
+        if client != sender_socket:
+            try:
+                client.sendall(message.encode('utf-8'))
+            except BrokenPipeError:
+                print(f"Could not send message to {name}, connection broken.")
 
 def start_server(host, port, num_players):
     srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
