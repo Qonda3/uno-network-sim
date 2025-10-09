@@ -19,7 +19,7 @@ def receive_messages(client_socket):
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
-        print("Usage: python client.py HOST PORT")
+        print("Usage: python client.py HOST PORT NAME")
         sys.exit(1)
 
     host = sys.argv[1]
@@ -38,6 +38,9 @@ if __name__ == "__main__":
         print("Unexpected message from server")
 
     print(f"Received from server: {data}")
+    print(f"Connected as {name}")
+
+    threading.Thread(target=receive_messages, args=(client_socket,), daemon=True).start()
 
     while True:
         try:
@@ -48,4 +51,5 @@ if __name__ == "__main__":
             print("Exiting...")
             client_socket.close()
             sys.exit(0)
+        client_socket.sendall(cmd.encode('utf-8'))
             
