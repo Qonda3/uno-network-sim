@@ -7,6 +7,10 @@ def handle_client(client_socket, addr):
     print(f"Connection from {addr} has been established!")
     client_socket.sendall(b"Hello, Client!")
     name = client_socket.recv(1024).decode('utf-8').strip()
+    if not name:
+        print("No name received, closing connection.")
+        client_socket.close()
+        return
     print(f"Client {addr} identified as {name}")
     try:
         while True:
@@ -20,7 +24,7 @@ def handle_client(client_socket, addr):
     finally:
         client_socket.close()
         print(f"Connection with {name} closed.")
-        
+
 
 
 def start_server(host, port, num_players):
