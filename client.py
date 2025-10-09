@@ -1,5 +1,20 @@
 import socket
 import sys
+import threading
+
+def receive_messages(client_socket):
+    try:
+        while True:
+            message = client_socket.recv(1024)
+            if not message:
+                print("Connection closed by the server.")
+                break
+            print(f"Server: {message.decode('utf-8').strip()}")
+    except ConnectionResetError:
+        print("Connection lost.")
+    finally:
+        client_socket.close()
+        sys.exit(0)
 
 
 if __name__ == "__main__":
