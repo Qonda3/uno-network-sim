@@ -20,24 +20,24 @@ def handle_client(client_socket, addr):
     
     try:
         while True:
-            message = client_socket.recv(1024)
-            if not message:
+            data = client_socket.recv(1024)
+            if not data:
                 break
-            print(f"Received from {name}: {message.decode('utf-8').strip()}")
-            client_socket.sendall(b"Message received")
+            message = data.decode('utf-8').strip()
+            print(f"Received from {name}: {message}")
+            broadcast_msg(f"{name}: {message}", client_socket)
     except ConnectionResetError:
         print(f"Connection with {name} lost.")
     finally:
         client_socket.close()
         print(f"Connection with {name} closed.")
 
-def broadcast_msg(message, sender_socket):
-    global clients
+def broadcast_msg(message, sender_socket=None):
     for client, name in clients:
         if client != sender_socket:
             try:
                 client.sendall(message.encode('utf-8'))
-            except BrokenPipeError:
+            except:
                 print(f"Could not send message to {name}, connection broken.")
 
 def start_server(host, port, num_players):
