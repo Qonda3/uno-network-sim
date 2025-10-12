@@ -29,8 +29,10 @@ def handle_client(client_socket, addr):
     except ConnectionResetError:
         print(f"Connection with {name} lost.")
     finally:
-        client_socket.close()
         print(f"Connection with {name} closed.")
+        clients = [c for c in clients if c[0] != client_socket]
+        broadcast_msg(f"{name} has left the game.")
+        client_socket.close()
 
 def broadcast_msg(message, sender_socket=None):
     for client, name in clients:
