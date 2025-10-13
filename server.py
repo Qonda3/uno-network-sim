@@ -5,8 +5,9 @@ import threading
 
 clients = []
 game_started = False
+game = None
 
-class Game:
+class GameState:
     def __init__(self, players):
         self.num_players = num_players
         self.players = []
@@ -57,6 +58,8 @@ def broadcast_msg(message, sender_socket=None):
                 print(f"Could not send message to {name}, connection broken.")
 
 def start_server(host, port, num_players):
+    global game
+    game = GameState(num_players)
     srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     srv.bind((host, port))
