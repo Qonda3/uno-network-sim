@@ -3,6 +3,8 @@ import socket
 import sys
 import threading
 
+import client
+
 clients = []
 game_started = False
 game = None
@@ -39,6 +41,8 @@ def handle_client(client_socket, addr):
             if not data:
                 break
             message = data.decode('utf-8').strip()
+            if message.upper() == "STATE":
+                client_socket.sendall(f"Players: {len(game.players)}/{game.num_players}\n".encode("utf-8"))
             print(f"Received from {name}: {message}")
             broadcast_msg(f"{name}: {message}", client_socket)
     except ConnectionResetError:
