@@ -6,6 +6,15 @@ import threading
 clients = []
 game_started = False
 
+class Game:
+    def __init__(self, players):
+        self.num_players = num_players
+        self.players = []
+        self.hands = []
+        self.deck = []
+        self.discard = []
+        self.turn_index = 0
+
 def handle_client(client_socket, addr):
     global clients, game_started
     print(f"Connection from {addr} has been established!")
