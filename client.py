@@ -7,11 +7,12 @@ def receive_messages(client_socket):
         while True:
             message = client_socket.recv(1024)
             if not message:
-                print("Connection closed by the server.")
+                print("\nConnection closed by the server.")
                 break
-            print(f"Server: {message.decode('utf-8').strip()}")
+            print(f"\nServer: {message.decode('utf-8').strip()}")
+            print("Enter command (or 'exit' to quit): ", end='', flush=True)
     except ConnectionResetError:
-        print("Connection lost.")
+        print("\nConnection lost.")
     finally:
         client_socket.close()
         sys.exit(0)

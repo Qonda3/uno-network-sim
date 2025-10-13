@@ -4,9 +4,10 @@ import sys
 import threading
 
 clients = []
+game_started = False
 
 def handle_client(client_socket, addr):
-    global clients
+    global clients, game_started
     print(f"Connection from {addr} has been established!")
     client_socket.sendall(b"Hello, Client!")
     name = client_socket.recv(1024).decode('utf-8').strip()
@@ -17,6 +18,10 @@ def handle_client(client_socket, addr):
     print(f"Client {addr} identified as {name}")
     clients.append((client_socket, name))
     broadcast_msg(f"{name} has joined the game.", client_socket)
+
+    if len(clients) == num_players and not game_started:
+        game_started = True
+        broadcast_msg("All players connected. Game will start soon.")
     
     try:
         while True:
