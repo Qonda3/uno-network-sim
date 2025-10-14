@@ -4,6 +4,7 @@ import sys
 import threading
 
 import client
+from card import create_deck
 
 clients = []
 game_started = False
@@ -14,7 +15,7 @@ class GameState:
         self.num_players = num_players
         self.players = []
         self.hands = []
-        self.deck = []
+        self.deck = create_deck()
         self.discard = []
         self.turn_index = 0
 
@@ -81,11 +82,5 @@ if __name__ == "__main__":
     host = sys.argv[1]
     port = int(sys.argv[2])
     num_players = int(sys.argv[3])
-    start_server(host, port, num_players)
-
-## Example usage:
-# python server.py 0.0.0.0 9999 2
-# This starts the server on all interfaces at port 9999, expecting 2 players
-# Clients can connect using:
-# python client.py 127.0.0.1 9999 Player1   
+    start_server(host, port, num_players)  
 
