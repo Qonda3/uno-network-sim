@@ -4,7 +4,6 @@ import sys
 import threading
 
 import client
-from card import create_deck
 
 clients = []
 game_started = False
@@ -15,7 +14,7 @@ class GameState:
         self.num_players = num_players
         self.players = []
         self.hands = []
-        self.deck = create_deck()
+        self.deck = []
         self.discard = []
         self.turn_index = 0
 
