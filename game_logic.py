@@ -25,3 +25,8 @@ class Deck:
         for w in WILDS:
             self.cards.extend([Card(None, w) for _ in range(4)])
         random.shuffle(self.cards)
+
+def draw_card(self):
+        if not self.cards:
+            raise ValueError("No cards left in the deck")
+        return self.cards.pop()
