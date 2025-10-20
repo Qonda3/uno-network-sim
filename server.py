@@ -2,7 +2,7 @@
 import socket
 import sys
 import threading
-
+from game_logic import Deck
 import client
 
 clients = []
@@ -17,6 +17,15 @@ class GameState:
         self.deck = []
         self.discard = []
         self.turn_index = 0
+
+    def add_player(self, sock, name):
+        self.players.append((sock, name))
+        self.hands[name] = []
+
+    def current_player(self):
+        if not self.players:
+            return None
+        return self.players[self.turn_index][1]
 
 def handle_client(client_socket, addr):
     global clients, game_started
