@@ -47,6 +47,7 @@ def handle_client(client_socket, addr):
     top_card = game.deck.draw()
     game.discard.append(top_card)
     broadcast_msg(f"All players connected. Starting game! Top card: {top_card}")
+    broadcast_hands()
     
     try:
         while True:
@@ -73,6 +74,14 @@ def broadcast_msg(message, sender_socket=None):
                 client.sendall(message.encode('utf-8'))
             except:
                 print(f"Could not send message to {name}, connection broken.")
+
+def broadcast_hands():
+    for client, name in clients:
+        hand_str = ", ".join(str(c) for c in game.hands[name])
+        try:
+            client.sendall(f"Your hand: {hand_str}\n".encode("utf-8"))
+        except:
+            pass
 
 def start_server(host, port, num_players):
     global game
