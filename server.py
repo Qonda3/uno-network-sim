@@ -42,7 +42,11 @@ def handle_client(client_socket, addr):
 
     if len(clients) == num_players and not game_started:
         game_started = True
-        broadcast_msg("All players connected. Game will start soon.")
+    for _, name in clients:
+        game.hands[name] = [game.deck.draw() for _ in range(7)]
+    top_card = game.deck.draw()
+    game.discard.append(top_card)
+    broadcast_msg(f"All players connected. Starting game! Top card: {top_card}")
     
     try:
         while True:
