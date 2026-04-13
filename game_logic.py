@@ -26,6 +26,10 @@ class Deck:
             self.cards.extend([Card(None, w) for _ in range(4)])
         random.shuffle(self.cards)
 
+def card_str(card):
+    color, value = card
+    return f"{color} {value}" if color else str(value)
+
 def make_deck():
     cards = []
     for color in COLORS:

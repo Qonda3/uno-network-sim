@@ -2,7 +2,7 @@
 import socket
 import sys
 import threading
-from game_logic import Deck
+from game_logic import make_game_state, card_str
 
 clients = []
 game_started = False
@@ -14,6 +14,13 @@ _state = {
     "started": False,
     "lock": threading.Lock()
 }
+
+def _send(sock, text):
+    """Send a UTF-8 message; silently ignore broken pipes."""
+    try:
+        sock.sendall(text.encode("utf-8"))
+    except OSError:
+        pass
 
 def handle_client(client_socket, addr):
     global clients, game_started
@@ -64,12 +71,10 @@ def broadcast_msg(message, sender_socket=None):
                 print(f"Could not send message to {name}, connection broken.")
 
 def broadcast_hands():
-    for client, name in clients:
-        hand_str = ", ".join(str(c) for c in game.hands[name])
-        try:
-            client.sendall(f"Your hand: {hand_str}\n".encode("utf-8"))
-        except:
-            pass
+    game = _state["game"]
+    for sock, name in _state["clients"]:
+        hand_str = ", ".join(card_str(c) for c in game["hands"][name])
+        _send(sock, f"Your hand: {hand_str}\n")
 
 def start_server(host, port, num_players):
     _state["game"] = make_game_state(num_players)
