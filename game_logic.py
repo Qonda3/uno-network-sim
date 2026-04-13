@@ -26,7 +26,33 @@ class Deck:
             self.cards.extend([Card(None, w) for _ in range(4)])
         random.shuffle(self.cards)
 
+def make_deck():
+    cards = []
+    for color in COLORS:
+        for n in NUMBERS:
+            cards.append((color, n))
+            if n != 0:
+                cards.append((color, n))
+        for a in ACTIONS:
+            cards.append((color, a))
+            cards.append((color, a))
+    for w in WILDS:
+        for _ in range(4):
+            cards.append((None, w))
+    random.shuffle(cards)
+    return cards
+
 def draw_card(self):
         if not self.cards:
             raise ValueError("No cards left in the deck")
         return self.cards.pop()
+
+def make_game_state(num_players):
+    return {
+        "num_players": num_players,
+        "players": [],
+        "hands": {},
+        "deck": make_deck(),
+        "discard": [],
+        "turn_index": 0,
+    }

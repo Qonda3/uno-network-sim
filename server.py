@@ -3,29 +3,17 @@ import socket
 import sys
 import threading
 from game_logic import Deck
-import client
 
 clients = []
 game_started = False
 game = None
 
-class GameState:
-    def __init__(self, players):
-        self.num_players = num_players
-        self.players = []
-        self.hands = []
-        self.deck = []
-        self.discard = []
-        self.turn_index = 0
-
-    def add_player(self, sock, name):
-        self.players.append((sock, name))
-        self.hands[name] = []
-
-    def current_player(self):
-        if not self.players:
-            return None
-        return self.players[self.turn_index][1]
+_state = {
+    "client":[],
+    "game": None,
+    "started": False,
+    "lock": threading.Lock()
+}
 
 def handle_client(client_socket, addr):
     global clients, game_started
@@ -84,24 +72,20 @@ def broadcast_hands():
             pass
 
 def start_server(host, port, num_players):
-    global game
-    game = GameState(num_players)
+    _state["game"] = make_game_state(num_players)
     srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     srv.bind((host, port))
-    srv.listen(4)
-    print(f"Server started at {host}:{port}")
+    srv.listen(num_players)
+    print(f"Server started at {host}:{port} (waiting for {num_players} player(s))")
     while True:
-        client, addr = srv.accept()
-        threading.Thread(target=handle_client, args=(client, addr), daemon=True).start()
+        conn, addr = srv.accept()
+        threading.Thread(target=handle_client, args=(conn, addr), daemon=True).start()
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
         print("Usage: python server.py HOST PORT NUM_PLAYERS")
         print("Example: python server.py 0.0.0.0 9999 2")
         sys.exit(1)
-    host = sys.argv[1]
-    port = int(sys.argv[2])
-    num_players = int(sys.argv[3])
-    start_server(host, port, num_players)  
+    start_server(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))  
 
