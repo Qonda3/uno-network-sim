@@ -46,10 +46,10 @@ def make_deck():
     random.shuffle(cards)
     return cards
 
-def draw_card(self):
-        if not self.cards:
+def draw_card(deck):
+        if not deck:
             raise ValueError("No cards left in the deck")
-        return self.cards.pop()
+        return deck.pop()
 
 def make_game_state(num_players):
     return {

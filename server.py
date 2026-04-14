@@ -2,7 +2,7 @@
 import socket
 import sys
 import threading
-from game_logic import make_game_state, card_str, deal_hands
+from game_logic import make_game_state, card_str, deal_hands, draw_card
 
 clients = []
 game_started = False
