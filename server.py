@@ -22,45 +22,58 @@ def _send(sock, text):
     except OSError:
         pass
 
-def handle_client(client_socket, addr):
-    global clients, game_started
-    print(f"Connection from {addr} has been established!")
-    client_socket.sendall(b"Hello, Client!")
-    name = client_socket.recv(1024).decode('utf-8').strip()
-    if not name:
-        print("No name received, closing connection.")
-        client_socket.close()
-        return
-    print(f"Client {addr} identified as {name}")
-    clients.append((client_socket, name))
-    broadcast_msg(f"{name} has joined the game.", client_socket)
 
-    if len(clients) == num_players and not game_started:
-        game_started = True
-    for _, name in clients:
-        game.hands[name] = [game.deck.draw() for _ in range(7)]
-    top_card = game.deck.draw()
-    game.discard.append(top_card)
-    broadcast_msg(f"All players connected. Starting game! Top card: {top_card}")
-    broadcast_hands()
-    
+def handle_client(client_sock, addr):
+    print(f"Connection from {addr} established.")
+
+    # Handshake: send greeting, receive player name
+    _send(client_sock, "Hello, Client!")
+    raw = client_sock.recv(1024)
+    if not raw:
+        client_sock.close()
+        return
+    name = raw.decode("utf-8").strip()
+    if not name:
+        print("No name received — closing connection.")
+        client_sock.close()
+        return
+
+    print(f"Client {addr} identified as {name!r}")
+    game = _state["game"]
+    num_players = game["num_players"]
+
+    with _state["lock"]:
+        add_player(game, client_sock, name)
+        _state["clients"].append((client_sock, name))
+        broadcast_msg(f"{name} has joined the game.\n", exclude_sock=client_sock)
+        # Start only once — under the lock so no double-start race
+        if len(_state["clients"]) == num_players and not _state["started"]:
+            _state["started"] = True
+            _start_game()
+
     try:
         while True:
-            data = client_socket.recv(1024)
+            data = client_sock.recv(1024)
             if not data:
                 break
-            message = data.decode('utf-8').strip()
+            message = data.decode("utf-8").strip()
             if message.upper() == "STATE":
-                client_socket.sendall(f"Players: {len(game.players)}/{game.num_players}\n".encode("utf-8"))
-            print(f"Received from {name}: {message}")
-            broadcast_msg(f"{name}: {message}", client_socket)
+                _send(
+                    client_sock,
+                    f"Players: {len(game['players'])}/{num_players}\n",
+                )
+            print(f"[{name}] {message}")
+            broadcast_msg(f"{name}: {message}\n", exclude_sock=client_sock)
     except ConnectionResetError:
         print(f"Connection with {name} lost.")
     finally:
         print(f"Connection with {name} closed.")
-        clients = [c for c in clients if c[0] != client_socket]
-        broadcast_msg(f"{name} has left the game.")
-        client_socket.close()
+        with _state["lock"]:
+            _state["clients"] = [
+                c for c in _state["clients"] if c[0] is not client_sock
+            ]
+        broadcast_msg(f"{name} has left the game.\n")
+        client_sock.close()
 
 def broadcast_msg(message, sender_socket=None):
     for sock, name in _state["clients"]:
