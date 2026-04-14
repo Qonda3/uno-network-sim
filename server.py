@@ -63,12 +63,9 @@ def handle_client(client_socket, addr):
         client_socket.close()
 
 def broadcast_msg(message, sender_socket=None):
-    for client, name in clients:
+    for sock, name in _state["clients"]:
         if client != sender_socket:
-            try:
-                client.sendall(message.encode('utf-8'))
-            except:
-                print(f"Could not send message to {name}, connection broken.")
+            _send(sock, message)
 
 def broadcast_hands():
     game = _state["game"]
