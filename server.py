@@ -2,7 +2,7 @@
 import socket
 import sys
 import threading
-from game_logic import make_game_state, card_str, deal_hands, draw_card
+from game_logic import make_game_state, card_str, deal_hands, draw_card, add_player
 
 clients = []
 game_started = False
@@ -77,7 +77,7 @@ def handle_client(client_sock, addr):
 
 def broadcast_msg(message, sender_socket=None):
     for sock, name in _state["clients"]:
-        if client != sender_socket:
+        if sock != sender_socket:
             _send(sock, message)
 
 def broadcast_hands():

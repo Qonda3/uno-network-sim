@@ -61,6 +61,10 @@ def make_game_state(num_players):
         "turn_index": 0,
     }
 
+def add_player(state, sock, name):
+    state["players"].append((sock, name))
+    state["hands"][name] = []
+
 def deal_hands(state, cards_each=7):
     """Deal  cards_each cards to every registered player."""
     for _, name in state["players"]:
