@@ -2,7 +2,7 @@
 import socket
 import sys
 import threading
-from game_logic import make_game_state, card_str
+from game_logic import make_game_state, card_str, deal_hands
 
 clients = []
 game_started = False
@@ -72,6 +72,16 @@ def broadcast_hands():
     for sock, name in _state["clients"]:
         hand_str = ", ".join(card_str(c) for c in game["hands"][name])
         _send(sock, f"Your hand: {hand_str}\n")
+
+def _start_game():
+    game = _state["game"]
+    deal_hands(game)
+    top_card = draw_card(game["deck"])
+    game["discard"].append(top_card)
+    broadcast_msg(
+        f"All players connected. Starting game! Top card: {card_str(top_card)}\n"
+    )
+    broadcast_hands()
 
 def start_server(host, port, num_players):
     _state["game"] = make_game_state(num_players)
