@@ -38,6 +38,8 @@ if __name__ == "__main__":
         client_socket.sendall(name.encode('utf-8'))
     else:
         print("Unexpected message from server")
+        client_socket.close()
+        sys.exit(1)
 
     print(f"Received from server: {data}")
     print(f"Connected as {name}")
@@ -49,6 +51,9 @@ if __name__ == "__main__":
             cmd = input("Enter command (or 'exit' to quit): ")
         except EOFError:
             break
+        cmd = cmd.strip()
+        if not cmd:
+            continue
         if cmd.lower() == 'exit':
             print("Exiting...")
             client_socket.close()
