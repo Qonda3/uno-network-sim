@@ -46,7 +46,7 @@ def handle_client(client_sock, addr):
         add_player(game, client_sock, name)
         _state["clients"].append((client_sock, name))
         broadcast_msg(f"{name} has joined the game.\n", exclude_sock=client_sock)
-        # Start only once — under the lock so no double-start race
+        # Start only once under the lock so no double-start race
         if len(_state["clients"]) == num_players and not _state["started"]:
             _state["started"] = True
             _start_game()
