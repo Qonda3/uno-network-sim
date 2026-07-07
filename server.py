@@ -91,14 +91,23 @@ def handle_client(client_sock, addr):
             if not data:
                 break
             message = data.decode("utf-8").strip()
-            if message.upper() == "STATE":
+            parts = message.split()
+
+            if not parts:
+                continue
+
+            command = parts[0].upper()
+
+            if command == "STATE":
                 _send(
                     client_sock,
                     f"Players: {len(game['players'])}/{num_players}\n",
                 )
-            print(f"[{name}] {message}")
-            broadcast_msg(f"{name}: {message}\n", exclude_sock=client_sock)
-    except ConnectionResetError:
+            elif command == "PLAY":
+                handle_play(client_sock, name, parts[1:])
+            else:
+                print(f"[{name}] {message}")
+                broadcast_msg(f"{name}: {message}\n", exclude_sock=client_sock)
         print(f"Connection with {name} lost.")
     finally:
         print(f"Connection with {name} closed.")
