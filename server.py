@@ -2,7 +2,10 @@
 import socket
 import sys
 import threading
-from game_logic import make_game_state, card_str, deal_hands, draw_card, add_player
+from game_logic import (
+    make_game_state, card_str, deal_hands, draw_card, add_player,
+    current_player_name, is_valid_play, parse_card,
+)
 
 clients = []
 game_started = False
@@ -21,6 +24,37 @@ def _send(sock, text):
         sock.sendall(text.encode("utf-8"))
     except OSError:
         pass
+
+def handle_play(client_sock, name, tokens):
+    game = _state["game"]
+
+    if current_player_name(game) != name:
+        _send(client_sock, "It's not your turn.\n")
+        return False
+
+    card = parse_card(tokens)
+    if card is None:
+        _send(client_sock, "Invalid card. Try: PLAY <Color> <Value>\n")
+        return False
+
+    hand = game["hands"][name]
+    if card not in hand:
+        _send(client_sock, "You don't have that card.\n")
+        return False
+    
+    top_card = game["discard"][-1]
+    if not is_valid_play(top_card, card):
+        _send(client_sock, f"Can't play {card_str(card)} on {card_str(top_card)}.\n")
+        return False
+
+    hand.remove(card)
+    game["discard"].append(card)
+    game["turn_index"] = (game["turn_index"] + 1) % len(game["players"])
+
+    broadcast_msg(f"{name} played {card_str(card)}.\n")
+    next_player = current_player_name(game)
+    broadcast_msg(f"It's {next_player}'s turn.\n")
+    return True
 
 
 def handle_client(client_sock, addr):
