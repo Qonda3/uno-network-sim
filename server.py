@@ -4,7 +4,7 @@ import sys
 import threading
 from game_logic import (
     make_game_state, card_str, deal_hands, draw_card, add_player,
-    current_player_name, is_valid_play, parse_card,
+    current_player_name, is_valid_play, parse_card, advance_turn,
 )
 
 clients = []
@@ -49,9 +49,37 @@ def handle_play(client_sock, name, tokens):
 
     hand.remove(card)
     game["discard"].append(card)
-    game["turn_index"] = (game["turn_index"] + 1) % len(game["players"])
-
     broadcast_msg(f"{name} played {card_str(card)}.\n")
+
+    color, value = card
+
+    if value == "Reverse":
+        game["direction"] *= -1
+        advance_turn(game, 1)
+        # In a 2-player game, Reverse acts like Skip
+        if len(game["players"]) == 2:
+            advance_turn(game, 1)
+
+    elif value == "Skip":
+        advance_turn(game, 2)
+
+    elif value == "Draw Two":
+        advance_turn(game, 1)
+        victim = current_player_name(game)
+        game["hands"][victim].extend(draw_card(game["deck"]) for _ in range(2))
+        broadcast_msg(f"{victim} draws 2 cards.\n")
+        advance_turn(game, 1)
+
+    elif value == "Wild Draw Four":
+        advance_turn(game, 1)
+        victim = current_player_name(game)
+        game["hands"][victim].extend(draw_card(game["deck"]) for _ in range(4))
+        broadcast_msg(f"{victim} draws 4 cards.\n")
+        advance_turn(game, 1)
+
+    else:
+        advance_turn(game, 1)
+
     next_player = current_player_name(game)
     broadcast_msg(f"It's {next_player}'s turn.\n")
     return True
