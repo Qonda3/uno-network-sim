@@ -75,3 +75,40 @@ def is_valid_play(top_card, card):
     if value == top_value:
         return True
     return False
+
+def parse_card(tokens):
+    """Convert a list of command tokens (everything after 'PLAY') into a
+    card tuple, or return None if the tokens don't describe a real card.
+
+    Examples of valid input:
+        ["Red", "5"]          -> ("Red", 5)
+        ["Blue", "Skip"]      -> ("Blue", "Skip")
+        ["Green", "Draw", "Two"] -> ("Green", "Draw Two")
+        ["Wild"]              -> (None, "Wild")
+        ["Wild", "Draw", "Four"] -> (None, "Wild Draw Four")
+    """
+    if not tokens:
+        return None
+
+    if tokens[0] == "Wild":
+        rest = " ".join(tokens[1:]).strip()
+        if rest == "":
+            return (None, "Wild")
+        if rest == "Draw Four":
+            return (None, "Wild Draw Four")
+        return None
+    
+    color = tokens[0]
+    if color not in COLORS:
+        return None
+
+    value_str = " ".join(tokens[1:]).strip()
+    if value_str == "":
+        return None
+
+    if value_str.isdigit():
+        return (color, int(value_str))
+    if value_str in ACTIONS:
+        return (color, value_str)
+
+    return None

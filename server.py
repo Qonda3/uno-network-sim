@@ -12,7 +12,7 @@ game_started = False
 game = None
 
 _state = {
-    "client":[],
+    "clients":[],
     "game": None,
     "started": False,
     "lock": threading.Lock()
