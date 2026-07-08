@@ -138,6 +138,7 @@ def _start_game():
         f"All players connected. Starting game! Top card: {card_str(top_card)}\n"
     )
     broadcast_hands()
+    broadcast_msg(f"It's {current_player_name(game)}'s turn.\n")
 
 def start_server(host, port, num_players):
     _state["game"] = make_game_state(num_players)

@@ -40,6 +40,7 @@ def make_game_state(num_players):
         "deck": make_deck(),
         "discard": [],
         "turn_index": 0,
+        "direction": 1,
     }
 
 def add_player(state, sock, name):
@@ -51,6 +52,11 @@ def current_player_name(state):
     if not players:
         return None
     return players[state["turn_index"]][1]
+
+def advance_turn(state, steps=1):
+    """Move turn_index forward by 'steps' player-slots, respecting direction."""
+    n = len(state["players"])
+    state["turn_index"] = (state["turn_index"] + steps * state["direction"]) % n
 
 def deal_hands(state, cards_each=7):
     """Deal  cards_each cards to every registered player."""
