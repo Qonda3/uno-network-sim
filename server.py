@@ -118,9 +118,9 @@ def handle_client(client_sock, addr):
         broadcast_msg(f"{name} has left the game.\n")
         client_sock.close()
 
-def broadcast_msg(message, sender_socket=None):
+def broadcast_msg(message, exclude_sock=None):
     for sock, name in _state["clients"]:
-        if sock != sender_socket:
+        if sock != exclude_sock:
             _send(sock, message)
 
 def broadcast_hands():
