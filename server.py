@@ -84,6 +84,25 @@ def handle_play(client_sock, name, tokens):
     broadcast_msg(f"It's {next_player}'s turn.\n")
     return True
 
+def handle_draw(client_sock, name):
+    game = _state["game"]
+
+    if current_player_name(game) != name:
+        _send(client_sock, "It's not your turn.\n")
+        return
+
+    if not game["deck"]:
+        _send(client_sock, "Deck is empty, cannot draw.\n")
+        return
+
+    card = draw_card(game["deck"])
+    game["hands"][name].append(card)
+    _send(client_sock, f"You drew {card_str(card)}.\n")
+
+    advance_turn(game, 1)
+    broadcast_msg(f"{name} drew a card.\n", exclude_sock=client_sock)
+    next_player = current_player_name(game)
+    broadcast_msg(f"It's {next_player}'s turn.\n")
 
 def handle_client(client_sock, addr):
     print(f"Connection from {addr} established.")
@@ -127,12 +146,20 @@ def handle_client(client_sock, addr):
             command = parts[0].upper()
 
             if command == "STATE":
+                top = game["discard"][-1]
                 _send(
                     client_sock,
-                    f"Players: {len(game['players'])}/{num_players}\n",
+                    f"Players: {len(game['players'])}/{num_players} | "
+                    f"Top card: {card_str(top)} | "
+                    f"Turn: {current_player_name(game)}\n",
                 )
+            elif command == "HAND":
+                hand_str = ", ".join(card_str(c) for c in game["hands"][name])
+                _send(client_sock, f"Your hand: {hand_str}\n")
             elif command == "PLAY":
                 handle_play(client_sock, name, parts[1:])
+            elif command == "DRAW":
+                handle_draw(client_sock, name)
             else:
                 print(f"[{name}] {message}")
                 broadcast_msg(f"{name}: {message}\n", exclude_sock=client_sock)

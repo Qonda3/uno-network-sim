@@ -8,8 +8,7 @@ def receive_messages(client_socket):
             message = client_socket.recv(1024)
             if not message:
                 print("\nConnection closed by the server.")
-                break
-            sys.stdout.write("\r" + " " * 80 + "\r")  
+                break 
             print(f"\nServer: {message.decode('utf-8').strip()}")
             print("Enter command (or 'exit' to quit): ", end='', flush=True)
     except ConnectionResetError:
