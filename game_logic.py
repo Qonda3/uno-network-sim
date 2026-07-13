@@ -64,7 +64,7 @@ def deal_hands(state, cards_each=7):
     for _, name in state["players"]:
         state["hands"][name] = [draw_card(state["deck"]) for _ in range(cards_each)]
 
-def is_valid_play(top_card, card):
+def is_valid_play(top_color, top_value, card):
     """Return True if `card` can legally be played on top of `top_card`.
 
     Rules:
@@ -72,7 +72,6 @@ def is_valid_play(top_card, card):
     - Otherwise the card must match the top card's color OR its value
       (number or action name).
     """
-    top_color, top_value = top_card
     color, value = card
 
     if color is None:

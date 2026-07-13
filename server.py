@@ -4,7 +4,7 @@ import sys
 import threading
 from game_logic import (
     make_game_state, card_str, deal_hands, draw_card, add_player,
-    current_player_name, is_valid_play, parse_card, advance_turn,
+    current_player_name, is_valid_play, parse_card, advance_turn, COLORS,
 )
 
 clients = []
@@ -43,8 +43,11 @@ def handle_play(client_sock, name, tokens):
         return False
     
     top_card = game["discard"][-1]
-    if not is_valid_play(top_card, card):
-        _send(client_sock, f"Can't play {card_str(card)} on {card_str(top_card)}.\n")
+    top_color = game["active_color"] if game["active_color"] else top_card[0]
+    top_value = top_card[1]
+
+    if not is_valid_play(top_color, top_value, card):
+        _send(client_sock, f"Can't play {card_str(card)} on {card_str(top_card)} (color: {top_color}).\n")
         return False
 
     hand.remove(card)
@@ -52,6 +55,16 @@ def handle_play(client_sock, name, tokens):
     broadcast_msg(f"{name} played {card_str(card)}.\n")
 
     color, value = card
+
+    if color is None:
+        chosen = tokens[-1].capitalize()
+        if chosen not in COLORS:
+            _send(client_sock, "You must choose a valid color (Red, Blue, Green, Yellow).\n")
+            chosen = COLORS[0]
+        game["active_color"] = chosen
+        broadcast_msg(f"{name} chooses {chosen}.\n")
+    else:
+        game["active_color"] = None
 
     if value == "Reverse":
         game["direction"] *= -1
