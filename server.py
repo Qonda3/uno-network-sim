@@ -200,8 +200,15 @@ def broadcast_hands():
 def _start_game():
     game = _state["game"]
     deal_hands(game)
+
     top_card = draw_card(game["deck"])
+    while top_card[0] is None:
+        game["deck"].insert(0, top_card)
+        top_card = draw_card(game["deck"])
+
     game["discard"].append(top_card)
+    game["active_color"] = top_card[0]
+    
     broadcast_msg(
         f"All players connected. Starting game! Top card: {card_str(top_card)}\n"
     )
