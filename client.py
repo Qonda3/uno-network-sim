@@ -48,8 +48,10 @@ if __name__ == "__main__":
     while True:
         try:
             cmd = input("Enter command (or 'exit' to quit): ")
-        except EOFError:
-            break
+        except (EOFError, KeyboardInterrupt):
+            print("\nExisting...")
+            client_socket.close()
+            sys.exit(0)
         cmd = cmd.strip()
         if not cmd:
             continue
