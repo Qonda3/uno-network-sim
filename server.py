@@ -29,7 +29,7 @@ def handle_play(client_sock, name, tokens):
     game = _state["game"]
 
     if game["over"]:
-        _send(client_sock, "The game is already.\n")
+        _send(client_sock, "The game is already over.\n")
         return False
 
     if current_player_name(game) != name:
@@ -111,6 +111,7 @@ def handle_draw(client_sock, name):
 
     if game["over"]:
         _send(client_sock, "The game is already over.\n")
+        return
 
     if current_player_name(game) != name:
         _send(client_sock, "It's not your turn.\n")
