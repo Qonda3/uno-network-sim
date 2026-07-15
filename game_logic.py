@@ -97,11 +97,15 @@ def parse_card(tokens):
         return None
 
     if tokens[0] == "Wild":
-        rest = " ".join(tokens[1:]).strip()
-        if rest == "":
+        if len(tokens) == 1:
             return (None, "Wild")
-        if rest == "Draw Four":
+
+        if tokens[1] == "Draw" and len(tokens) >= 3 and tokens[2] == "Four":
             return (None, "Wild Draw Four")
+
+        if len(tokens) == 2 and tokens[1] in COLORS:
+            return (None, "Wild")
+
         return None
     
     color = tokens[0]

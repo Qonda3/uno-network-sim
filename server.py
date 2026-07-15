@@ -147,7 +147,11 @@ def handle_client(client_sock, addr):
 
     try:
         while True:
-            data = client_sock.recv(1024)
+            try:
+                data = client_sock.recv(1024)
+            except ConnectionResetError:
+                print(f"[{name}] connection reset.")
+                break
             if not data:
                 break
             message = data.decode("utf-8").strip()
