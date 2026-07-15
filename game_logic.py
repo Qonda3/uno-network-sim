@@ -42,6 +42,7 @@ def make_game_state(num_players):
         "turn_index": 0,
         "direction": 1,
         "active_color": None,
+        "over": False,
     }
 
 def add_player(state, sock, name):

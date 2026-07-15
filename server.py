@@ -28,6 +28,10 @@ def _send(sock, text):
 def handle_play(client_sock, name, tokens):
     game = _state["game"]
 
+    if game["over"]:
+        _send(client_sock, "The game is already.\n")
+        return False
+
     if current_player_name(game) != name:
         _send(client_sock, "It's not your turn.\n")
         return False
@@ -53,6 +57,11 @@ def handle_play(client_sock, name, tokens):
     hand.remove(card)
     game["discard"].append(card)
     broadcast_msg(f"{name} played {card_str(card)}.\n")
+
+    if not hand:
+        game["over"] = True
+        broadcast_msg(f"{name} has won the game! \n")
+        return True
 
     color, value = card
 
@@ -99,6 +108,9 @@ def handle_play(client_sock, name, tokens):
 
 def handle_draw(client_sock, name):
     game = _state["game"]
+
+    if game["over"]:
+        _send(client_sock, "The game is already over.\n")
 
     if current_player_name(game) != name:
         _send(client_sock, "It's not your turn.\n")
