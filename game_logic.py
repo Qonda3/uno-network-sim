@@ -43,6 +43,7 @@ def make_game_state(num_players):
         "direction": 1,
         "active_color": None,
         "over": False,
+        "uno_called": {},
     }
 
 def add_player(state, sock, name):
