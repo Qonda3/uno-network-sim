@@ -219,6 +219,29 @@ def handle_uno(client_sock, name):
     game["uno_called"][name] = True
     broadcast_msg(f"{name} calls UNO!\n")
 
+def handle_catch(client_sock, accuser_name, target_name):
+    game = _state["game"]
+
+    if not target_name or target_name not in game["hands"]:
+        _send(client_sock, "Usage: CATCH <player name>\n")
+        return
+    
+    target_hand = game["hands"][target_name]
+
+    if len(target_hand) != 1:
+        _send(client_sock, f"{target_name} doesn't have exactly one card.\n")
+        return
+    
+    if game["uno_called"].get(target_name, True):
+        _send(client_sock, f"{target_name} already called UNO.\n")
+        return
+    
+    target_hand.extend(draw_card(game["deck"]) for _ in range(2))
+    game["uno_called"][target_name] = True
+    broadcast_msg(
+        f"{target_name} was caught not calling UNO by {accuser_name} and draws 2 cards!\n"
+    )
+
 def broadcast_msg(message, exclude_sock=None):
     for sock, name in _state["clients"]:
         if sock != exclude_sock:
