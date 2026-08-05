@@ -196,6 +196,11 @@ def handle_client(client_sock, addr):
                 handle_play(client_sock, name, parts[1:])
             elif command == "DRAW":
                 handle_draw(client_sock, name)
+            elif command == "UNO":
+                handle_uno(client_sock, name)
+            elif command == "CATCH":
+                target = parts[1] if len(parts) > 1 else None
+                handle_catch(client_sock, name, target)
             else:
                 print(f"[{name}] {message}")
                 broadcast_msg(f"{name}: {message}\n", exclude_sock=client_sock)
