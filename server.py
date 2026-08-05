@@ -63,6 +63,11 @@ def handle_play(client_sock, name, tokens):
         broadcast_msg(f"{name} has won the game! \n")
         return True
 
+    if len(hand) == 1:
+        game["uno_called"][name] = False
+        broadcast_msg(f"{name} has ONE card left! Call UNO before someone catches you.\n")
+    else:
+        game["uno_called"][name] = True
     color, value = card
 
     if color is None:
