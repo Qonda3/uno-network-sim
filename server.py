@@ -216,7 +216,7 @@ def handle_client(client_sock, addr):
 
 def handle_uno(client_sock, name):
     game = _state["game"]
-    hande = game["hands"].get(name, [])
+    hand = game["hands"].get(name, [])
 
     if len(hand) != 1:
         _send(client_sock, "You can only call UNO when you have exactly one card.\n")
