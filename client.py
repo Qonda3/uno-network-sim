@@ -2,17 +2,27 @@ import socket
 import sys
 import threading
 
-def receive_messages(client_socket):
+print_lock = threading.Lock()
+
+def receive_messages(client_socket, name):
     try:
         while True:
             message = client_socket.recv(1024)
             if not message:
-                print("\nConnection closed by the server.")
-                break 
-            print(f"\nServer: {message.decode('utf-8').strip()}")
-            print("Enter command (or 'exit' to quit): ", end='', flush=True)
+                with print_lock:
+                    print("\nConnection closed by the server.")
+                break
+
+            text = message.decode("utf-8").strip()
+
+            with print_lock:
+                print(f"\nServer: {text}")
+                if f"It's {name}'s turn" in text:
+                    print(">>> YOUR TURN <<<")
+                    print("Enter command (or 'exit' to quit): ", end='', flush=True)
     except ConnectionResetError:
-        print("\nConnection lost.")
+        with print_lock:
+            print("\nConnection lost.")
     finally:
         client_socket.close()
         sys.exit(0)
