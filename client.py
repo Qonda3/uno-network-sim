@@ -59,7 +59,7 @@ if __name__ == "__main__":
         try:
             cmd = input("Enter command (or 'exit' to quit): ")
         except (EOFError, KeyboardInterrupt):
-            print("\nExisting...")
+            print("\nExiting...")
             client_socket.close()
             sys.exit(0)
         cmd = cmd.strip()
