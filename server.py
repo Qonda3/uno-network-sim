@@ -137,7 +137,45 @@ def handle_draw(client_sock, name):
     broadcast_msg(f"It's {next_player}'s turn.\n")
 
 def handle_disconnect(client_sock, name):
-    None
+    game = _state["game"]
+
+    with _state["lock"]:
+        _state["clients"] = [
+            c for c in _state["clients"] if c[0] is not client_sock
+        ]
+
+        if _state["started"] and not game["over"]:
+            removed_index = None
+            for i, (sock, pname) in enumerate(game["players"]):
+                if pname == name:
+                    removed_index = i
+                    break
+
+            if removed_index is not None:
+                game["players"].pop(removed_index)
+                game["hands"].pop(name, None)
+                game["uno_called"].pop(name, None)
+
+                remaining = len(game["players"])
+
+                if remaining <= 1:
+                    game["over"] = True
+                    if remaining == 1:
+                        winner = game["players"][0][1]
+                        broadcast_msg(f"{name} disconnected. {winner} wins by default!\n")
+                    else:
+                        broadcast_msg(f"{name} disconnected. No players remain.\n")
+                else:
+                    if removed_index < game["turn_index"]:
+                        game["turn_index"] -= 1
+                    game["turn_index"] %= remaining
+                    broadcast_msg(f"{name} has left the game.\n")
+                    next_player = current_player_name(game)
+                    broadcast_msg(f"It's {next_player}'s turn.\n")
+        else:
+            broadcast_msg(f"{name} has left the game.\n")
+
+    client_sock.close()
 
 def handle_client(client_sock, addr):
     print(f"Connection from {addr} established.")
