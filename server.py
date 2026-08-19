@@ -136,6 +136,9 @@ def handle_draw(client_sock, name):
     next_player = current_player_name(game)
     broadcast_msg(f"It's {next_player}'s turn.\n")
 
+def handle_disconnect(client_sock, name):
+    None
+
 def handle_client(client_sock, addr):
     print(f"Connection from {addr} established.")
 
@@ -207,12 +210,7 @@ def handle_client(client_sock, addr):
         print(f"Connection with {name} lost.")
     finally:
         print(f"Connection with {name} closed.")
-        with _state["lock"]:
-            _state["clients"] = [
-                c for c in _state["clients"] if c[0] is not client_sock
-            ]
-        broadcast_msg(f"{name} has left the game.\n")
-        client_sock.close()
+        handle_disconnect(client_sock, name)
 
 def handle_uno(client_sock, name):
     game = _state["game"]
