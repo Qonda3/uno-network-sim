@@ -53,7 +53,7 @@ if __name__ == "__main__":
     print(f"Received from server: {data}")
     print(f"Connected as {name}")
 
-    threading.Thread(target=receive_messages, args=(client_socket,), daemon=True).start()
+    threading.Thread(target=receive_messages, args=(client_socket, name), daemon=True).start()
 
     while True:
         try:
